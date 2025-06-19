@@ -1,0 +1,64 @@
+CPA - CEUB
+Problema da Avaliação de Matérias / Professores
+Praticamente um Reclame aqui da Faculdade
+
+Power Bi
+
+Questionários Baseados em Escala de 1 a 10 Concordância + 1 Descritiva
+Mesma Metodologia do ENADE
+
+Avaliação das Disciplinas MD1
+Avaliação do Curso e Infraestrutura MD2
+Avaliação do Curso por Inteiro MD3
+
+Ensino pelo Discente
+
+Alunos Avaliados por Nota Média por MGA
+
+Filtrado por RLS - Usuário: (Nome Professor (RA.Professor))
+
+Filtros:
+Modalidade
+Período Letivo
+Campus: AsaNorte-Tagu-Virtual
+Faculdade|Curso
+Eixo de Formação(EAD)
+Instrumento
+Grupo de Questão
+Disciplina
+Docente
+
+
+Idéia de Solução para mostrar Discursivas:
+Analisar palavras em tendência e usa-las como top5 recorrentes
+Análise de Sentimento 
+Dividir por boas e ruins
+
+
+Meta 4,50/5.0
+
+5 = Roxo Ceub
+4,5 = Verde
+4 a 4,5 Amarelo
+Abaixo de 4 Vermelho
+Gráfico de Linha mostrando Linha de META
+
+
+Comparação de períodos - Semestre Anterior Comparado com Atual          IMPORTANTE
+
+Power BI Report Server
+Campo Nome Usuário - Medida (Tem na Planilha)
+
+
+==============================
+
+Propor uma Visualização para os Alunos
+
+Verificar o Site Espaço CPA - Tentar fazer algum Scrap e reaproveitar algo
+
+
+
+--------------
+
+VERSIONAR TUDO COM COMMITS ORGANIZADOS DE 'FEAT:' E ETC NO GITHUB
+Deixar Privado Até Finalizar
