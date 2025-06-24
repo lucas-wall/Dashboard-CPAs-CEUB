@@ -1,0 +1,513 @@
+/*
+  Medidas DAX para o Power BI
+  Base de Dados: CEUB_export-data-desafio-pbi.xlsx
+
+  Objetivo: Criar medidas que permitam análises aprofundadas e a construção de dashboards interativos,
+  aproveitando as transformações realizadas em M Language.
+*/
+
+-- 1. Medidas Básicas
+
+// Total de Avaliações
+Total Avaliacoes = COUNTROWS('CPA - CEUB')
+
+// Média da Nota Normalizada
+Media Nota Normalizada = AVERAGE('CPA - CEUB'[Nota_Normalizada])
+
+// Total de Respostas Descritivas (para identificar o engajamento com questões abertas)
+Total Respostas Descritivas = CALCULATE(COUNTROWS('CPA - CEUB'), NOT ISBLANK('CPA - CEUB'[Resposta_Descritiva]))
+
+-- 2. Medidas de Análise Temporal
+
+// Média da Nota Normalizada por Mês (para tendências)
+Media Nota Normalizada Mes = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    DATESMTD('CPA - CEUB'[Data_Avaliacao])
+)
+
+// Média da Nota Normalizada Ano a Ano (para comparação anual)
+Media Nota Normalizada Ano = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    DATESYTD('CPA - CEUB'[Data_Avaliacao])
+)
+
+-- 3. Medidas de Análise de Desempenho (Exemplo: Avaliação por Questão/Grupo)
+
+// Média da Nota por Questão
+Media Nota por Questao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Questão])
+)
+
+// Média da Nota por Tipo de Avaliação
+Media Nota por Tipo Avaliacao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Avaliacao])
+)
+
+// Média da Nota por Professor
+Media Nota por Professor = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Professor])
+)
+
+-- 4. Medidas de Classificação/Segmentação (Exemplo: Contagem de Respostas por Categoria)
+
+// Contagem de Respostas 'Concordo Totalmente'
+Contagem Concordo Totalmente = 
+CALCULATE(
+    COUNTROWS('CPA - CEUB'),
+    'CPA - CEUB'[Resposta] = "a) Concordo totalmente"
+)
+
+// Contagem de Respostas 'Discordo Totalmente'
+Contagem Discordo Totalmente = 
+CALCULATE(
+    COUNTROWS('CPA - CEUB'),
+    'CPA - CEUB'[Resposta] = "e) Discordo totalmente"
+)
+
+-- 5. Medidas de Comparação (Exemplo: Variação em relação ao período anterior)
+
+// Média da Nota Normalizada - Mês Anterior
+Media Nota Normalizada Mes Anterior = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    PREVIOUSMONTH('CPA - CEUB'[Data_Avaliacao])
+)
+
+// Variação da Média da Nota Normalizada em relação ao Mês Anterior
+Variacao Media Nota Normalizada Mes Anterior = 
+[Media Nota Normalizada] - [Media Nota Normalizada Mes Anterior]
+
+-- 6. Medidas para Análise de Alunos/Cursos (Exemplo: Contagem de Cursos EAD)
+
+// Total de Cursos EAD
+Total Cursos EAD = 
+CALCULATE(
+    DISTINCTCOUNT('CPA - CEUB'[Curso]),
+    'CPA - CEUB'[Curso_EAD] = TRUE()
+)
+
+// Total de Avaliações por Campus
+Total Avaliacoes por Campus = 
+CALCULATE(
+    COUNTROWS('CPA - CEUB'),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nome_Campus])
+)
+
+-- 7. Medidas para Análise de Pergunta Específica (Exemplo: Média da Nota para uma Questão específica)
+
+// Média da Nota para Questão 1 (Exemplo)
+Media Nota Questao 1 = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    'CPA - CEUB'[Numero_Questao] = 1
+)
+
+// Média da Nota para Questão 'O material da disciplina apresentou qualidade adequada para meu aprendizado.'
+Media Nota Material Qualidade = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    'CPA - CEUB'[Questão] = "2. O material da disciplina apresentou qualidade adequada para meu aprendizado."
+)
+
+-- 8. Medidas para Análise de Dimensões e Modalidades
+
+// Média da Nota por Dimensão de Avaliação
+Media Nota por Avaliacao Dimensao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Avaliacao_Dimensao])
+)
+
+// Média da Nota por Modalidade de Avaliação
+Media Nota por Avaliacao Modalidade = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Avaliacao_Modalidade])
+)
+
+// Média da Nota por Modalidade de Ensino
+Media Nota por Ensino Modalidade = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ensino_Modalidade])
+)
+
+-- 9. Medidas para Análise de Eixo de Formação
+
+// Média da Nota por Eixo de Formação
+Media Nota por Eixo Formacao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Eixo_Formacao])
+)
+
+-- 10. Medidas para Análise de Período de Análise Avaliação
+
+// Média da Nota por Período de Análise Avaliação
+Media Nota por Periodo Analise Avaliacao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Analise_Avaliacao])
+)
+
+-- 11. Medidas para Análise de Faixa MGA
+
+// Média da Nota por Faixa MGA
+Media Nota por Faixa MGA = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Faixa_MGA])
+)
+
+-- 12. Medidas para Análise de Nível Acadêmico
+
+// Média da Nota por Nível Acadêmico
+Media Nota por Nivel Academico = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nivel_Academico])
+)
+
+-- 13. Medidas para Análise de Regime Letivo
+
+// Média da Nota por Regime Letivo
+Media Nota por Regime Letivo = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Regime_Letivo])
+)
+
+-- 14. Medidas para Análise de Forma de Veiculação de Ensino
+
+// Média da Nota por Forma de Veiculação de Ensino
+Media Nota por Forma Veiculacao Ensino = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Forma_Veiculacao_Ensino])
+)
+
+-- 15. Medidas para Análise de Unidade Funcional
+
+// Média da Nota por Unidade Funcional
+Media Nota por Unidade Funcional = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Unidade_Funcional])
+)
+
+-- 16. Medidas para Análise de Tipo de Ensino do Curso
+
+// Média da Nota por Tipo de Ensino do Curso
+Media Nota por Tipo Ensino Curso = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Ensino_Curso])
+)
+
+-- 17. Medidas para Análise de Turno da Turma
+
+// Média da Nota por Turno da Turma
+Media Nota por Turno Turma = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Turno_Turma])
+)
+
+-- 18. Medidas para Análise de Período da Disciplina
+
+// Média da Nota por Período da Disciplina
+Media Nota por Periodo Disciplina = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Disciplina])
+)
+
+-- 19. Medidas para Análise de Ciclo Acadêmico
+
+// Média da Nota por Ciclo Acadêmico
+Media Nota por Ciclo Academico = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ciclo_Academico])
+)
+
+-- 20. Medidas para Análise de Currículo
+
+// Média da Nota por Currículo
+Media Nota por Curriculo = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Currículo])
+)
+
+-- 21. Medidas para Análise de Turma
+
+// Média da Nota por Turma
+Media Nota por Turma = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Turma])
+)
+
+-- 22. Medidas para Análise de Grupo da Questão
+
+// Média da Nota por Grupo da Questão
+Media Nota por Grupo Questao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Grupo_Questao])
+)
+
+-- 23. Medidas para Análise de Tipo da Questão
+
+// Média da Nota por Tipo da Questão
+Media Nota por Tipo Questao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Questao])
+)
+
+-- 24. Medidas para Análise de Peso da Questão
+
+// Média da Nota por Peso da Questão
+Media Nota por Peso Questao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Peso_Questao])
+)
+
+-- 25. Medidas para Análise de Resposta
+
+// Média da Nota por Resposta
+Media Nota por Resposta = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Resposta])
+)
+
+-- 26. Medidas para Análise de Peso da Resposta
+
+// Média da Nota por Peso da Resposta
+Media Nota por Peso Resposta = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Peso_Resposta])
+)
+
+-- 27. Medidas para Análise de Período Letivo
+
+// Média da Nota por Período Letivo
+Media Nota por Periodo Letivo = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Letivo])
+)
+
+-- 28. Medidas para Análise de Ordenação Período Letivo
+
+// Média da Nota por Ordenação Período Letivo
+Media Nota por Ordenacao Periodo Letivo = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ordenacao_Periodo_Letivo])
+)
+
+-- 29. Medidas para Análise de Ciclo Acadêmico - Letra
+
+// Média da Nota por Ciclo Acadêmico - Letra
+Media Nota por Ciclo Academico Letra = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ciclo_Academico_Letra])
+)
+
+-- 30. Medidas para Análise de Nome do Campus
+
+// Média da Nota por Nome do Campus
+Media Nota por Nome Campus = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nome_Campus])
+)
+
+-- 31. Medidas para Análise de Tipo de Curso
+
+// Média da Nota por Tipo de Curso
+Media Nota por Tipo Curso = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Curso])
+)
+
+-- 32. Medidas para Análise de Curso
+
+// Média da Nota por Curso
+Media Nota por Curso = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Curso])
+)
+
+-- 33. Medidas para Análise de Currículo - Ano
+
+// Média da Nota por Currículo - Ano
+Media Nota por Curriculo Ano = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Curriculo_Ano])
+)
+
+-- 34. Medidas para Análise de Código da Turma
+
+// Média da Nota por Código da Turma
+Media Nota por Codigo Turma = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Codigo_Turma])
+)
+
+-- 35. Medidas para Análise de Período Letivo - Ano
+
+// Média da Nota por Período Letivo - Ano
+Media Nota por Periodo Letivo Ano = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Letivo_Ano])
+)
+
+-- 36. Medidas para Análise de Período Letivo - Num
+
+// Média da Nota por Período Letivo - Num
+Media Nota por Periodo Letivo Num = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Letivo_Num])
+)
+
+-- 37. Medidas para Análise de Período de Análise Avaliação - Ordenacao
+
+// Média da Nota por Período de Análise Avaliação - Ordenacao
+Media Nota por Periodo Analise Avaliacao Ordenacao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Analise_Avaliacao_Ordenacao])
+)
+
+-- 38. Medidas para Análise de Ordenação do Ciclo Acadêmico
+
+// Média da Nota por Ordenação do Ciclo Acadêmico
+Media Nota por Ordenacao Ciclo Academico = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ordenacao_Ciclo_Academico])
+)
+
+-- 39. Medidas para Análise de Ano do Ciclo Acadêmico
+
+// Média da Nota por Ano do Ciclo Acadêmico
+Media Nota por Ano Ciclo Academico = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ano_Ciclo_Academico])
+)
+
+-- 40. Medidas para Análise de Resposta ID
+
+// Média da Nota por Resposta ID
+Media Nota por Resposta ID = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Resposta_ID])
+)
+
+-- 41. Medidas para Análise de ID_Registro
+
+// Média da Nota por ID_Registro
+Media Nota por ID Registro = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[ID_Registro])
+)
+
+-- 42. Medidas para Análise de Código da Avaliação
+
+// Média da Nota por Código da Avaliação
+Media Nota por Codigo Avaliacao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Codigo_Avaliacao])
+)
+
+-- 43. Medidas para Análise de Nome da Avaliação
+
+// Média da Nota por Nome da Avaliação
+Media Nota por Nome Avaliacao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nome_Avaliacao])
+)
+
+-- 44. Medidas para Análise de Tipo da Avaliação
+
+// Média da Nota por Tipo da Avaliação
+Media Nota por Tipo Avaliacao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Avaliacao])
+)
+
+-- 45. Medidas para Análise de Número da Questão
+
+// Média da Nota por Número da Questão
+Media Nota por Numero Questao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Numero_Questao])
+)
+
+-- 46. Medidas para Análise de Questão
+
+// Média da Nota por Questão
+Media Nota por Questao = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Questão])
+)
+
+-- 47. Medidas para Análise de Resposta Descritiva
+
+// Média da Nota por Resposta Descritiva
+Media Nota por Resposta Descritiva = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Resposta_Descritiva])
+)
+
+-- 48. Medidas para Análise de Curso EAD
+
+// Média da Nota por Curso EAD
+Media Nota por Curso EAD = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Curso_EAD])
+)
+
+-- 49. Medidas para Análise de Grupo Resposta ID
+
+// Média da Nota por Grupo Resposta ID
+Media Nota por Grupo Resposta ID = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Grupo_Resposta_ID])
+)
+
+
+
