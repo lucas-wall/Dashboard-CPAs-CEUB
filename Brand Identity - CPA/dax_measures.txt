@@ -1,0 +1,515 @@
+/*
+  DAX measures for Power BI
+  Data source: CEUB_export-data-challenge-pbi.xlsx
+
+  Goal: build measures that enable in-depth analysis and interactive dashboards,
+  on top of the transformations done in M (Power Query).
+  Note: column names and answer values (e.g. 'a) Concordo totalmente') are kept
+  exactly as they appear in the source data model.
+*/
+
+-- 1. Basic measures
+
+// Total number of evaluations
+Total Evaluations = COUNTROWS('CPA - CEUB')
+
+// Average normalized score
+Avg Normalized Score = AVERAGE('CPA - CEUB'[Nota_Normalizada])
+
+// Total open-ended answers (engagement with open questions)
+Total Open-Ended Answers = CALCULATE(COUNTROWS('CPA - CEUB'), NOT ISBLANK('CPA - CEUB'[Resposta_Descritiva]))
+
+-- 2. Time-based measures
+
+// Average normalized score, month to date (trends)
+Avg Normalized Score MTD = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    DATESMTD('CPA - CEUB'[Data_Avaliacao])
+)
+
+// Average normalized score, year to date (annual comparison)
+Avg Normalized Score YTD = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    DATESYTD('CPA - CEUB'[Data_Avaliacao])
+)
+
+-- 3. Performance measures (e.g. score by question/group)
+
+// Average score by Question
+Avg Score by Question = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Questão])
+)
+
+// Average score by Evaluation Type
+Avg Score by Evaluation Type = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Avaliacao])
+)
+
+// Average score by Professor
+Avg Score by Professor = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Professor])
+)
+
+-- 4. Classification measures (e.g. answer count by category)
+
+// Count of 'Strongly agree' answers
+Count Strongly Agree = 
+CALCULATE(
+    COUNTROWS('CPA - CEUB'),
+    'CPA - CEUB'[Resposta] = "a) Concordo totalmente"
+)
+
+// Count of 'Strongly disagree' answers
+Count Strongly Disagree = 
+CALCULATE(
+    COUNTROWS('CPA - CEUB'),
+    'CPA - CEUB'[Resposta] = "e) Discordo totalmente"
+)
+
+-- 5. Comparison measures (e.g. change vs previous period)
+
+// Average normalized score - previous month
+Avg Normalized Score Prev Month = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    PREVIOUSMONTH('CPA - CEUB'[Data_Avaliacao])
+)
+
+// Change in average normalized score vs previous month
+Avg Normalized Score MoM Change = 
+[Avg Normalized Score] - [Avg Normalized Score Prev Month]
+
+-- 6. Student/program measures (e.g. distance learning program count)
+
+// Total distance learning (EAD) programs
+Total EAD Programs = 
+CALCULATE(
+    DISTINCTCOUNT('CPA - CEUB'[Curso]),
+    'CPA - CEUB'[Curso_EAD] = TRUE()
+)
+
+// Total evaluations by campus
+Total Evaluations by Campus = 
+CALCULATE(
+    COUNTROWS('CPA - CEUB'),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nome_Campus])
+)
+
+-- 7. Single-question measures (e.g. average score for one specific question)
+
+// Average score for question 1 (example)
+Avg Score Question 1 = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    'CPA - CEUB'[Numero_Questao] = 1
+)
+
+// Average score for the question "The course material was of adequate quality for my learning."
+Avg Score Material Quality = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    'CPA - CEUB'[Questão] = "2. O material da disciplina apresentou qualidade adequada para meu aprendizado."
+)
+
+-- 8. Dimension and modality measures
+
+// Average score by Evaluation Dimension
+Avg Score by Evaluation Dimension = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Avaliacao_Dimensao])
+)
+
+// Average score by Evaluation Modality
+Avg Score by Evaluation Modality = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Avaliacao_Modalidade])
+)
+
+// Average score by Teaching Modality
+Avg Score by Teaching Modality = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ensino_Modalidade])
+)
+
+-- 9. Learning Track analysis
+
+// Average score by Learning Track
+Avg Score by Learning Track = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Eixo_Formacao])
+)
+
+-- 10. Evaluation Analysis Period analysis
+
+// Average score by Evaluation Analysis Period
+Avg Score by Evaluation Analysis Period = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Analise_Avaliacao])
+)
+
+-- 11. MGA Band analysis
+
+// Average score by MGA Band
+Avg Score by MGA Band = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Faixa_MGA])
+)
+
+-- 12. Academic Level analysis
+
+// Average score by Academic Level
+Avg Score by Academic Level = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nivel_Academico])
+)
+
+-- 13. Academic Regime analysis
+
+// Average score by Academic Regime
+Avg Score by Academic Regime = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Regime_Letivo])
+)
+
+-- 14. Teaching Delivery Format analysis
+
+// Average score by Teaching Delivery Format
+Avg Score by Teaching Delivery Format = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Forma_Veiculacao_Ensino])
+)
+
+-- 15. Functional Unit analysis
+
+// Average score by Functional Unit
+Avg Score by Functional Unit = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Unidade_Funcional])
+)
+
+-- 16. Program Teaching Type analysis
+
+// Average score by Program Teaching Type
+Avg Score by Program Teaching Type = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Ensino_Curso])
+)
+
+-- 17. Class Shift analysis
+
+// Average score by Class Shift
+Avg Score by Class Shift = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Turno_Turma])
+)
+
+-- 18. Subject Period analysis
+
+// Average score by Subject Period
+Avg Score by Subject Period = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Disciplina])
+)
+
+-- 19. Academic Cycle analysis
+
+// Average score by Academic Cycle
+Avg Score by Academic Cycle = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ciclo_Academico])
+)
+
+-- 20. Curriculum analysis
+
+// Average score by Curriculum
+Avg Score by Curriculum = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Currículo])
+)
+
+-- 21. Class analysis
+
+// Average score by Class
+Avg Score by Class = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Turma])
+)
+
+-- 22. Question Group analysis
+
+// Average score by Question Group
+Avg Score by Question Group = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Grupo_Questao])
+)
+
+-- 23. Question Type analysis
+
+// Average score by Question Type
+Avg Score by Question Type = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Questao])
+)
+
+-- 24. Question Weight analysis
+
+// Average score by Question Weight
+Avg Score by Question Weight = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Peso_Questao])
+)
+
+-- 25. Answer analysis
+
+// Average score by Answer
+Avg Score by Answer = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Resposta])
+)
+
+-- 26. Answer Weight analysis
+
+// Average score by Answer Weight
+Avg Score by Answer Weight = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Peso_Resposta])
+)
+
+-- 27. Academic Term analysis
+
+// Average score by Academic Term
+Avg Score by Academic Term = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Letivo])
+)
+
+-- 28. Academic Term Sort Order analysis
+
+// Average score by Academic Term Sort Order
+Avg Score by Academic Term Sort Order = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ordenacao_Periodo_Letivo])
+)
+
+-- 29. Academic Cycle Letter analysis
+
+// Average score by Academic Cycle Letter
+Avg Score by Academic Cycle Letter = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ciclo_Academico_Letra])
+)
+
+-- 30. Campus Name analysis
+
+// Average score by Campus Name
+Avg Score by Campus Name = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nome_Campus])
+)
+
+-- 31. Program Type analysis
+
+// Average score by Program Type
+Avg Score by Program Type = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Curso])
+)
+
+-- 32. Program analysis
+
+// Average score by Program
+Avg Score by Program = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Curso])
+)
+
+-- 33. Curriculum Year analysis
+
+// Average score by Curriculum Year
+Avg Score by Curriculum Year = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Curriculo_Ano])
+)
+
+-- 34. Class Code analysis
+
+// Average score by Class Code
+Avg Score by Class Code = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Codigo_Turma])
+)
+
+-- 35. Academic Term Year analysis
+
+// Average score by Academic Term Year
+Avg Score by Academic Term Year = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Letivo_Ano])
+)
+
+-- 36. Academic Term Number analysis
+
+// Average score by Academic Term Number
+Avg Score by Academic Term Number = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Letivo_Num])
+)
+
+-- 37. Evaluation Analysis Period Sort Order analysis
+
+// Average score by Evaluation Analysis Period Sort Order
+Avg Score by Evaluation Analysis Period Sort Order = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Periodo_Analise_Avaliacao_Ordenacao])
+)
+
+-- 38. Academic Cycle Sort Order analysis
+
+// Average score by Academic Cycle Sort Order
+Avg Score by Academic Cycle Sort Order = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ordenacao_Ciclo_Academico])
+)
+
+-- 39. Academic Cycle Year analysis
+
+// Average score by Academic Cycle Year
+Avg Score by Academic Cycle Year = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Ano_Ciclo_Academico])
+)
+
+-- 40. Answer ID analysis
+
+// Average score by Answer ID
+Avg Score by Answer ID = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Resposta_ID])
+)
+
+-- 41. Record ID analysis
+
+// Average score by Record ID
+Avg Score by Record ID = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[ID_Registro])
+)
+
+-- 42. Evaluation Code analysis
+
+// Average score by Evaluation Code
+Avg Score by Evaluation Code = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Codigo_Avaliacao])
+)
+
+-- 43. Evaluation Name analysis
+
+// Average score by Evaluation Name
+Avg Score by Evaluation Name = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Nome_Avaliacao])
+)
+
+-- 44. Evaluation Type analysis
+
+// Average score by Evaluation Type
+Avg Score by Evaluation Type = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Tipo_Avaliacao])
+)
+
+-- 45. Question Number analysis
+
+// Average score by Question Number
+Avg Score by Question Number = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Numero_Questao])
+)
+
+-- 46. Question analysis
+
+// Average score by Question
+Avg Score by Question = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Questão])
+)
+
+-- 47. Open-Ended Answer analysis
+
+// Average score by Open-Ended Answer
+Avg Score by Open-Ended Answer = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Resposta_Descritiva])
+)
+
+-- 48. Distance Learning Program analysis
+
+// Average score by Distance Learning Program
+Avg Score by Distance Learning Program = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Curso_EAD])
+)
+
+-- 49. Answer Group ID analysis
+
+// Average score by Answer Group ID
+Avg Score by Answer Group ID = 
+CALCULATE(
+    AVERAGE('CPA - CEUB'[Nota_Normalizada]),
+    ALLEXCEPT('CPA - CEUB', 'CPA - CEUB'[Grupo_Resposta_ID])
+)
+
+
+

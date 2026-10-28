@@ -1,0 +1,64 @@
+CPA - CEUB
+Problem: evaluation of courses / professors
+Basically a complaints board for the university
+
+Power BI
+
+Questionnaires based on a 1 to 10 agreement scale + 1 open-ended question
+Same methodology as ENADE (Brazilian national student performance exam)
+
+Course Subject Evaluation MD1
+Program and Infrastructure Evaluation MD2
+Whole-Program Evaluation MD3
+
+Teaching as Rated by Students
+
+Students Evaluated by Average Grade per MGA
+
+Filtered by RLS - User: (Professor Name (Professor ID))
+
+Filters:
+Modality
+Academic Term
+Campus: AsaNorte-Tagu-Virtual
+School|Program
+Learning Track (Distance Learning)
+Instrument
+Question Group
+Subject
+Professor
+
+
+Solution idea for showing open-ended answers:
+Find trending words and use them as the top 5 recurring terms
+Sentiment analysis
+Split into positive and negative
+
+
+Target 4.50/5.0
+
+5 = CEUB Purple
+4.5 = Green
+4 to 4.5 Yellow
+Below 4 Red
+Line chart showing the TARGET line
+
+
+Period comparison - previous semester vs current          IMPORTANT
+
+Power BI Report Server
+User Name field - measure (available in the spreadsheet)
+
+
+==============================
+
+Propose a view for students
+
+Check the CPA Space website - try some scraping and reuse what is useful
+
+
+
+--------------
+
+VERSION EVERYTHING WITH ORGANIZED 'FEAT:' (ETC.) COMMITS ON GITHUB
+Keep private until finished
